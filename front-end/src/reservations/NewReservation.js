@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import formatReservationDate from "../utils/format-reservation-date";
+import ErrorAlert from "../layout/ErrorAlert";
 
 export default function NewReservation() {
 	const history = useHistory();
 
+	const [errors, setErrors] = useState([]);
 	const [formData, setFormData] = useState({
 		// initial (default) data
 		first_name: "",
@@ -21,12 +22,70 @@ export default function NewReservation() {
 
 	function handleSubmit(event) {
 		event.preventDefault();
-		
-		history.push(`/dashboard?date=${formatReservationDate(formData.reservation_date)}`);
+
+		const foundErrors = [];
+
+		if(validateFields(foundErrors) && validateDate(foundErrors)) {
+			history.push(`/dashboard?date=${formData.reservation_date}`);
+		}
+
+		setErrors(foundErrors);
+	}
+
+
+	function validateFields(foundErrors) {
+		for(const field in formData) {
+			if(formData[field] === "") {
+				foundErrors.push({ message: `${field.split("_").join(" ")} cannot be left blank.`})
+			}
+		}
+
+		if(formData.people <= 0) {
+			foundErrors.push({ message: "Party must be a size of at least 1." })
+		}
+
+		if(foundErrors.length > 0) {
+			return false;
+		}
+		return true;
+	}
+
+	function validateDate(foundErrors) {
+		const reserveDate = new Date(`${formData.reservation_date}T${formData.reservation_time}:00.000`);
+		const todaysDate = new Date();
+
+		if(reserveDate.getDay() === 2) {  
+			foundErrors.push({ message: "Reservation cannot be made: Restaurant is closed on Tuesdays." });
+		}
+
+		if(reserveDate < todaysDate) {
+			foundErrors.push({ message: "Reservation cannot be made: Date is in the past." });
+		}
+
+		if(reserveDate.getHours() < 10 || (reserveDate.getHours() === 10 && reserveDate.getMinutes() < 30)) {
+			foundErrors.push({ message: "Reservation cannot be made: Restaurant is not open until 10:30AM." });
+		}
+		else if(reserveDate.getHours() > 22 || (reserveDate.getHours() === 22 && reserveDate.getMinutes() >= 30)) {
+			foundErrors.push({ message: "Reservation cannot be made: Restaurant is closed after 10:30PM." });
+		}
+		else if(reserveDate.getHours() > 21 || (reserveDate.getHours() === 21 && reserveDate.getMinutes() > 30)) {
+			foundErrors.push({ message: "Reservation cannot be made: Reservation must be made at least an hour before closing (10:30PM)." })
+		}
+
+		if(foundErrors.length > 0) {
+			return false;
+		}
+		return true;
+	}
+
+	const errorsJSX = () => {
+		return errors.map((error, idx) => <ErrorAlert key={idx} error={error} />);
 	}
 
 	return (
 		<form>
+			{errorsJSX()}
+
 			<label htmlFor="first_name">First Name:&nbsp;</label>
 			<input 
 				name="first_name"
@@ -52,7 +111,6 @@ export default function NewReservation() {
 				name="mobile_number"
 				id="mobile_number"
 				type="tel"
-				pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
 				onChange={handleChange}
 				value={formData.mobile_number}
 				required
