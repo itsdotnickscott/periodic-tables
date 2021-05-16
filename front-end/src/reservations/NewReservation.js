@@ -13,7 +13,7 @@ export default function NewReservation() {
 		mobile_number: "",
 		reservation_date: "",
 		reservation_time: "",
-		people: 0,
+		people: 1,
 	});
 
 	function handleChange({ target }) {
@@ -40,14 +40,7 @@ export default function NewReservation() {
 			}
 		}
 
-		if(formData.people <= 0) {
-			foundErrors.push({ message: "Party must be a size of at least 1." })
-		}
-
-		if(foundErrors.length > 0) {
-			return false;
-		}
-		return true;
+		return foundErrors.length > 0;
 	}
 
 	function validateDate(foundErrors) {
@@ -72,15 +65,12 @@ export default function NewReservation() {
 			foundErrors.push({ message: "Reservation cannot be made: Reservation must be made at least an hour before closing (10:30PM)." })
 		}
 
-		if(foundErrors.length > 0) {
-			return false;
-		}
-		return true;
+		return foundErrors.length > 0;
 	}
 
 	const errorsJSX = () => {
 		return errors.map((error, idx) => <ErrorAlert key={idx} error={error} />);
-	}
+	};
 
 	return (
 		<form>
@@ -141,6 +131,7 @@ export default function NewReservation() {
 				name="people"
 				id="people"
 				type="number"
+				min="1"
 				onChange={handleChange}
 				value={formData.people}
 				required
