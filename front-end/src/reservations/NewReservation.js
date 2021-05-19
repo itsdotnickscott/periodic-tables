@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
 
-export default function NewReservation() {
+export default function NewReservation({ edit, reservations }) {
 	const history = useHistory();
+	const { reservation_id } = useParams();
 
 	const [errors, setErrors] = useState([]);
 	const [formData, setFormData] = useState({
@@ -15,6 +16,27 @@ export default function NewReservation() {
 		reservation_time: "",
 		people: 1,
 	});
+
+	if(edit) {
+		if(!reservations || !reservation_id) return null;
+
+		const foundReservation = reservations.find((reservation) => 
+			reservation.reservation_id === Number(reservation_id));
+
+		if(!foundReservation || foundReservation.status !== "booked") {
+			return <p>Only booked reservations can be edited.</p>;
+		}
+
+		setFormData({
+			first_name: foundReservation.first_name,
+			last_name: foundReservation.last_name,
+			mobile_number: foundReservation.mobile_number,
+			reservation_date: foundReservation.reservation_date,
+			reservation_time: foundReservation.reservation_time,
+			people: foundReservation.people,
+			reservation_id: foundReservation.reservation_id,
+		});
+	}
 
 	function handleChange({ target }) {
 		setFormData({ ...formData, [target.name]: target.value });
@@ -40,7 +62,7 @@ export default function NewReservation() {
 			}
 		}
 
-		return foundErrors.length > 0;
+		return foundErrors.length === 0;
 	}
 
 	function validateDate(foundErrors) {
@@ -65,7 +87,7 @@ export default function NewReservation() {
 			foundErrors.push({ message: "Reservation cannot be made: Reservation must be made at least an hour before closing (10:30PM)." })
 		}
 
-		return foundErrors.length > 0;
+		return foundErrors.length === 0;
 	}
 
 	const errorsJSX = () => {

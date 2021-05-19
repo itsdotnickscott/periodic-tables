@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
-import { listReservations } from "../utils/api";
 import { previous, next } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
 import ReservationRow from "./ReservationRow";
@@ -12,28 +11,8 @@ import TableRow from "./TableRow";
  *  the date for which the user wants to view reservations.
  * @returns {JSX.Element}
  */
-function Dashboard({ date }) {
-  const [reservations, setReservations] = useState([]);
-  const [reservationsError, setReservationsError] = useState(null);
-
-	const [tables, setTables] = useState([]);
-  const [tablesError, setTablesError] = useState(null);
-
+function Dashboard({ date, reservations, reservationsError, tables, tablesError }) {
 	const history = useHistory();
-
-  useEffect(loadDashboard, [date]);
-
-  function loadDashboard() {
-    const abortController = new AbortController();
-
-    setReservationsError(null);
-
-    listReservations({ date }, abortController.signal)
-      .then(setReservations)
-      .catch(setReservationsError);
-
-    return () => abortController.abort();
-  }
 
 	const reservationsJSX = () => {
 		return reservations.map((reservation) => 
@@ -63,7 +42,9 @@ function Dashboard({ date }) {
 						<th scope="col">Time</th>
 						<th scope="col">People</th>
 						<th scope="col">Status</th>
-						<th scope="col">Seat Table</th>
+						<th scope="col">Edit</th>
+						<th scope="col">Cancel</th>
+						<th scope="col">Seat</th>
 					</tr>
 				</thead>
 				
@@ -83,6 +64,7 @@ function Dashboard({ date }) {
 						<th scope="col">Table Name</th>
 						<th scope="col">Capacity</th>
 						<th scope="col">Status</th>
+						<th scope="col">Finish</th>
 					</tr>
 				</thead>
 				
