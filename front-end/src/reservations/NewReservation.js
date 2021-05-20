@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
+import { createReservation } from "../utils/api";
 
 export default function NewReservation({ edit, reservations }) {
 	const history = useHistory();
 	const { reservation_id } = useParams();
 
 	const [errors, setErrors] = useState([]);
+	const [apiError, setApiError] = useState(null);
 	const [formData, setFormData] = useState({
 		// initial (default) data
 		first_name: "",
@@ -44,14 +46,19 @@ export default function NewReservation({ edit, reservations }) {
 
 	function handleSubmit(event) {
 		event.preventDefault();
+		const abortController = new AbortController();
 
 		const foundErrors = [];
 
 		if(validateFields(foundErrors) && validateDate(foundErrors)) {
-			history.push(`/dashboard?date=${formData.reservation_date}`);
+			createReservation(formData, abortController.signal)
+				.then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
+				.catch(setApiError);
 		}
 
 		setErrors(foundErrors);
+
+		return () => abortController.abort();
 	}
 
 
@@ -97,6 +104,7 @@ export default function NewReservation({ edit, reservations }) {
 	return (
 		<form>
 			{errorsJSX()}
+			<ErrorAlert error={apiError} />
 
 			<label htmlFor="first_name">First Name:&nbsp;</label>
 			<input 

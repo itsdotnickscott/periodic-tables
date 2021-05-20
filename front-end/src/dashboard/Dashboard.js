@@ -32,8 +32,8 @@ function Dashboard({ date, reservations, reservationsError, tables, tablesError 
 			
 			<ErrorAlert error={reservationsError} />
 
-			<table class="table">
-				<thead class="thead-light">
+			<table className="table">
+				<thead className="thead-light">
 					<tr>
 						<th scope="col">ID</th>
 						<th scope="col">First Name</th>
@@ -57,8 +57,8 @@ function Dashboard({ date, reservations, reservationsError, tables, tablesError 
 
 			<ErrorAlert error={tablesError} />
 
-			<table class="table">
-				<thead class="thead-light">
+			<table className="table">
+				<thead className="thead-light">
 					<tr>
 						<th scope="col">ID</th>
 						<th scope="col">Table Name</th>
