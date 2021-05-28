@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert"
+import { createTable } from "../utils/api";
+import { today } from "../utils/date-time";
 
 export default function NewTable() {
 	const history = useHistory();
@@ -13,14 +15,18 @@ export default function NewTable() {
 	});
 
 	function handleChange({ target }) {
-		setFormData({ ...formData, [target.name]: target.value });
+		setFormData({ ...formData, [target.name]: target.name === "capacity" ? Number(target.value) : target.value });
 	}
 
-	function handleSubmit(event) {
+	async function handleSubmit(event) {
 		event.preventDefault();
 
+		const abortController = new AbortController();
+
 		if(validateFields()) {
-			history.push(`/dashboard`);
+			createTable(formData, abortController.signal)
+				.then(() => history.push(`/dashboard?date=${today()}`))
+				.catch(setError);
 		}
 	}
 
@@ -36,7 +42,7 @@ export default function NewTable() {
 
 		setError(foundError);
 
-		return foundError !== null;
+		return foundError === null;
 	}
 
 	return (
@@ -48,7 +54,7 @@ export default function NewTable() {
 				name="table_name"
 				id="table_name"
 				type="text"
-				minLength="2"
+				minLength={2}
 				onChange={handleChange}
 				value={formData.table_name}
 				required
@@ -59,7 +65,7 @@ export default function NewTable() {
 				name="capacity"
 				id="capacity"
 				type="number"
-				min="1"
+				min={1}
 				onChange={handleChange}
 				value={formData.capacity}
 				required

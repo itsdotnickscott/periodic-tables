@@ -1,6 +1,6 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { previous, next } from "../utils/date-time";
+import { previous, next, today } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
 import ReservationRow from "./ReservationRow";
 import TableRow from "./TableRow";
@@ -11,73 +11,102 @@ import TableRow from "./TableRow";
  *  the date for which the user wants to view reservations.
  * @returns {JSX.Element}
  */
-function Dashboard({ date, reservations, reservationsError, tables, tablesError }) {
+function Dashboard({ date, reservations, reservationsError, tables, tablesError, loadDashboard }) {
 	const history = useHistory();
 
 	const reservationsJSX = () => {
 		return reservations.map((reservation) => 
-			<ReservationRow key={reservation.reservation_id} reservation={reservation} />);
+			<ReservationRow key={reservation.reservation_id} reservation={reservation} loadDashboard={loadDashboard} />);
 	};
 
 	const tablesJSX = () => {
 		return tables.map((table) => 
-			<TableRow key={table.table_id} table={table} />);
+			<TableRow key={table.table_id} table={table} loadDashboard={loadDashboard} />);
 	};
 
-  return (
-    <main>
-      <h1>Dashboard</h1>
+	function handleClick({ target }) {
+		let newDate;
+		let useDate;
 
-      <h4 className="mb-0">Reservations for {date}</h4>
-			
-			<ErrorAlert error={reservationsError} />
+		if(!date) {
+			useDate = today();
+		}
+		else {
+			useDate = date;
+		}
 
-			<table className="table">
-				<thead className="thead-light">
-					<tr>
-						<th scope="col">ID</th>
-						<th scope="col">First Name</th>
-						<th scope="col">Last Name</th>
-						<th scope="col">Mobile Number</th>
-						<th scope="col">Time</th>
-						<th scope="col">People</th>
-						<th scope="col">Status</th>
-						<th scope="col">Edit</th>
-						<th scope="col">Cancel</th>
-						<th scope="col">Seat</th>
-					</tr>
-				</thead>
+		if(target.name === "previous") {
+			newDate = previous(useDate);
+		}
+		else if(target.name === "next") {
+			newDate = next(useDate);
+		}
+		else {
+			newDate = today();
+		}
+
+		history.push(`/dashboard?date=${newDate}`);
+	}
+
+	return (
+		<main>
+		<h1>Dashboard</h1>
+
+		<h4 className="mb-0">Reservations for {date}</h4>
 				
-				<tbody>
-					{reservationsJSX()}
-				</tbody>
-			</table>
-      
-			<h4 className="mb-0">Tables</h4>
+				<ErrorAlert error={reservationsError} />
 
-			<ErrorAlert error={tablesError} />
+				<table className="table">
+					<thead className="thead-light">
+						<tr>
+							<th scope="col">ID</th>
+							<th scope="col">First Name</th>
+							<th scope="col">Last Name</th>
+							<th scope="col">Mobile Number</th>
+							<th scope="col">Date</th>
+							<th scope="col">Time</th>
+							<th scope="col">People</th>
+							<th scope="col">Status</th>
+							<th scope="col">Edit</th>
+							<th scope="col">Cancel</th>
+							<th scope="col">Seat</th>
+						</tr>
+					</thead>
+					
+					<tbody>
+						{reservationsJSX()}
+					</tbody>
+				</table>
 
-			<table className="table">
-				<thead className="thead-light">
-					<tr>
-						<th scope="col">ID</th>
-						<th scope="col">Table Name</th>
-						<th scope="col">Capacity</th>
-						<th scope="col">Status</th>
-						<th scope="col">Finish</th>
-					</tr>
-				</thead>
-				
-				<tbody>
-					{tablesJSX()}
-				</tbody>
-			</table>
+				<button type="button" name="previous" onClick={handleClick}>Previous</button>
+				<button type="button" name="today" onClick={handleClick}>Today</button>
+				<button type="button" name="next" onClick={handleClick}>Next</button>
+		
+				<br />
+				<br />
 
-			<button type="button" onClick={() => history.push(`/dashboard?date=${previous(date)}`)}>Previous</button>
-			<button type="button" onClick={() => history.push(`/dashboard`)}>Today</button>
-			<button type="button" onClick={() => history.push(`/dashboard?date=${next(date)}`)}>Next</button>
-    </main>
-  );
+				<h4 className="mb-0">Tables</h4>
+
+				<ErrorAlert error={tablesError} />
+
+				<table className="table">
+					<thead className="thead-light">
+						<tr>
+							<th scope="col">Table ID</th>
+							<th scope="col">Table Name</th>
+							<th scope="col">Capacity</th>
+							<th scope="col">Status</th>
+							<th scope="col">Reservation ID</th>
+							<th scope="col">Finish</th>
+						</tr>
+					</thead>
+					
+					<tbody>
+						{tablesJSX()}
+					</tbody>
+				</table>
+		</main>
+  	);
 }
 
 export default Dashboard;

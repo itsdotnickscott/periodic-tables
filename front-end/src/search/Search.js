@@ -30,7 +30,7 @@ export default function Search() {
 		return reservations.length > 0 ?
 			reservations.map((reservation) => 
 				<ReservationRow key={reservation.reservation_id} reservation={reservation} />) :
-			<p>No reservations found</p>;
+			<td>No reservations found</td>;
 	}
 
 	return (
@@ -51,13 +51,14 @@ export default function Search() {
 				<button type="submit" onClick={handleSubmit}>Find</button>
 			</form>
 			
-			<table class="table">
-				<thead class="thead-light">
+			<table className="table">
+				<thead className="thead-light">
 					<tr>
 						<th scope="col">ID</th>
 						<th scope="col">First Name</th>
 						<th scope="col">Last Name</th>
 						<th scope="col">Mobile Number</th>
+						<th scope="col">Date</th>
 						<th scope="col">Time</th>
 						<th scope="col">People</th>
 						<th scope="col">Status</th>
@@ -68,7 +69,9 @@ export default function Search() {
 				</thead>
 				
 				<tbody>
-					{searchResultsJSX()}
+					<tr>
+						{searchResultsJSX()}
+					</tr>
 				</tbody>
 			</table>
 		</div>

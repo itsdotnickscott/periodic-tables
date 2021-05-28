@@ -41,7 +41,7 @@ export default function NewReservation({ edit, reservations }) {
 	}
 
 	function handleChange({ target }) {
-		setFormData({ ...formData, [target.name]: target.value });
+		setFormData({ ...formData, [target.name]: target.name === "people" ? Number(target.value) : target.value });
 	}
 
 	function handleSubmit(event) {
@@ -51,6 +51,8 @@ export default function NewReservation({ edit, reservations }) {
 		const foundErrors = [];
 
 		if(validateFields(foundErrors) && validateDate(foundErrors)) {
+			setFormData({ ...formData, people: Number(formData.people) });
+
 			createReservation(formData, abortController.signal)
 				.then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
 				.catch(setApiError);
