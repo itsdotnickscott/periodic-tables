@@ -38,10 +38,10 @@ function update(reservation_id, status) {
         .update({ status: status });
 }
 
-function destroy(reservation_id) {
-    return knex(tableName)
-        .where({ reservation_id: reservation_id })
-        .del();
+function edit(reservation_id, reservation) {
+	return knex(tableName)
+		.where({ reservation_id: reservation_id })
+		.update({ ...reservation })
 }
 
 module.exports = {
@@ -49,5 +49,5 @@ module.exports = {
 	create,
 	read,
 	update,
-	destroy,
+	edit,
 }

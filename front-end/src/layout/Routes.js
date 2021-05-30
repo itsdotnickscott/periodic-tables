@@ -60,11 +60,14 @@ function Routes() {
 			</Route>
 
 			<Route path="/reservations/new">
-				<NewReservation />
+				<NewReservation 
+					loadDashboard={loadDashboard}
+				/>
 			</Route>
 
 			<Route path="/reservations/:reservation_id/edit">
 				<NewReservation 
+					loadDashboard={loadDashboard}
 					edit={true}
 					reservations={reservations}
 				/>

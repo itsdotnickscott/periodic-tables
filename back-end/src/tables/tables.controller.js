@@ -65,9 +65,9 @@ function validateSeat(req, res, next) {
 }
 
 async function update(req, res) {
-    await service.occupy(res.locals.table.table_id, res.locals.reservation.reservation_id);
+    const response = await service.occupy(res.locals.table.table_id, res.locals.reservation.reservation_id);
 
-    res.sendStatus(200).json({ data: "test" });
+    res.status(200).json({ data: response });
 }
 
 async function validateTableId(req, res, next) {
@@ -96,9 +96,9 @@ async function validateSeatedTable(req, res, next) {
 }
 
 async function destroy(req, res) {
-    await service.free(res.locals.table.table_id);
+    const response = await service.free(res.locals.table.table_id);
 
-    res.sendStatus(200);
+    res.status(200).json({ data: response });
 }
 
 module.exports = {

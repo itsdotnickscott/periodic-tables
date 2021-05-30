@@ -79,7 +79,7 @@ export default function SeatReservation({ reservations, tables, loadDashboard })
 				value={table_id}
 				onChange={handleChange}
 			>
-				<option value={0}>Choose a table</option>);
+				<option value={0}>Choose a table</option>
 				{tableOptionsJSX()}
 			</select>
 

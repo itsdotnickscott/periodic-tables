@@ -30,7 +30,7 @@ export default function Search() {
 		return reservations.length > 0 ?
 			reservations.map((reservation) => 
 				<ReservationRow key={reservation.reservation_id} reservation={reservation} />) :
-			<td>No reservations found</td>;
+			<tr><td>No reservations found</td></tr>;
 	}
 
 	return (
@@ -69,9 +69,7 @@ export default function Search() {
 				</thead>
 				
 				<tbody>
-					<tr>
-						{searchResultsJSX()}
-					</tr>
+					{searchResultsJSX()}
 				</tbody>
 			</table>
 		</div>

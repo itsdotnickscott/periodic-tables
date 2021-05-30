@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
-import { createReservation } from "../utils/api";
+import { createReservation, editReservation } from "../utils/api";
 
-export default function NewReservation({ edit, reservations }) {
+export default function NewReservation({ loadDashboard, edit, reservations }) {
 	const history = useHistory();
 	const { reservation_id } = useParams();
 
@@ -19,26 +19,30 @@ export default function NewReservation({ edit, reservations }) {
 		people: 1,
 	});
 
-	if(edit) {
-		if(!reservations || !reservation_id) return null;
+	useEffect(() => {
+		if(edit) {
+			if(!reservations || !reservation_id) return null;
+	
+			const foundReservation = reservations.find((reservation) => 
+				reservation.reservation_id === Number(reservation_id));
+	
+			if(!foundReservation || foundReservation.status !== "booked") {
+				return <p>Only booked reservations can be edited.</p>;
+			}
 
-		const foundReservation = reservations.find((reservation) => 
-			reservation.reservation_id === Number(reservation_id));
-
-		if(!foundReservation || foundReservation.status !== "booked") {
-			return <p>Only booked reservations can be edited.</p>;
+			const date = new Date(foundReservation.reservation_date);
+			const dateString = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${date.getDate()}`;
+	
+			setFormData({
+				first_name: foundReservation.first_name,
+				last_name: foundReservation.last_name,
+				mobile_number: foundReservation.mobile_number,
+				reservation_date: dateString,
+				reservation_time: foundReservation.reservation_time,
+				people: foundReservation.people,
+			});
 		}
-
-		setFormData({
-			first_name: foundReservation.first_name,
-			last_name: foundReservation.last_name,
-			mobile_number: foundReservation.mobile_number,
-			reservation_date: foundReservation.reservation_date,
-			reservation_time: foundReservation.reservation_time,
-			people: foundReservation.people,
-			reservation_id: foundReservation.reservation_id,
-		});
-	}
+	}, [edit, reservation_id, reservations]);
 
 	function handleChange({ target }) {
 		setFormData({ ...formData, [target.name]: target.name === "people" ? Number(target.value) : target.value });
@@ -51,11 +55,18 @@ export default function NewReservation({ edit, reservations }) {
 		const foundErrors = [];
 
 		if(validateFields(foundErrors) && validateDate(foundErrors)) {
-			setFormData({ ...formData, people: Number(formData.people) });
-
-			createReservation(formData, abortController.signal)
-				.then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
-				.catch(setApiError);
+			if(edit) {
+				editReservation(reservation_id, formData, abortController.signal)
+					.then(loadDashboard)
+					.then(() => history.goBack())
+					.catch(setApiError);
+			}
+			else {
+				createReservation(formData, abortController.signal)
+					.then(loadDashboard)
+					.then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
+					.catch(setApiError);
+			}
 		}
 
 		setErrors(foundErrors);
@@ -132,7 +143,7 @@ export default function NewReservation({ edit, reservations }) {
 			<input 
 				name="mobile_number"
 				id="mobile_number"
-				type="tel"
+				type="text"
 				onChange={handleChange}
 				value={formData.mobile_number}
 				required
