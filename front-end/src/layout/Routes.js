@@ -75,7 +75,6 @@ function Routes() {
 
 			<Route path="/reservations/:reservation_id/seat">
 				<SeatReservation
-					reservations={reservations}
 					tables={tables}
 					loadDashboard={loadDashboard}
 				/>

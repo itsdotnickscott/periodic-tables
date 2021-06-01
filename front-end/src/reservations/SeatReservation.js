@@ -1,14 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
-import { seatTable, updateReservationStatus } from "../utils/api";
+import { listReservations, seatTable, updateReservationStatus } from "../utils/api";
 
-export default function SeatReservation({ reservations, tables, loadDashboard }) {
+export default function SeatReservation({ tables, loadDashboard }) {
 	const history = useHistory();
+
 	const [table_id, setTableId] = useState(0);
+	const [reservations, setReservations] = useState([]);
+	const [reservationsError, setReservationsError] = useState(null);
 	const [errors, setErrors] = useState([]);
 	const [apiError, setApiError] = useState(null);
+
 	const { reservation_id } = useParams();
+
+	useEffect(() => {
+    	const abortController = new AbortController();
+
+    	setReservationsError(null);
+
+    	listReservations(null, abortController.signal)
+			.then((reservations) => reservations.sort((reservationA, reservationB) => 
+				reservationA.reservation_time < reservationB.reservation_time ? -1 : 1))
+      		.then(setReservations)
+      		.catch(setReservationsError);
+
+    	return () => abortController.abort();
+  	}, []);
 
 	if(!tables || !reservations) return null;
 
@@ -71,6 +89,7 @@ export default function SeatReservation({ reservations, tables, loadDashboard })
 		<form>
 			{errorsJSX()}
 			<ErrorAlert error={apiError} />
+			<ErrorAlert error={reservationsError} />
 
 			<label htmlFor="table_id">Choose table:</label>
 			<select 

@@ -81,7 +81,7 @@ async function validateReservationId(req, res, next) {
     const reservation = await service.read(Number(reservation_id));
 
     if(!reservation) {
-        return next({ status: 400, message: "given reservation does not exist" });
+        return next({ status: 404, message: `reservation id ${reservation_id} does not exist` });
     }
 
     res.locals.reservation = reservation;
@@ -109,9 +109,14 @@ async function edit(req, res) {
 	res.status(200).json({ data: response });
 }
 
+async function read(req, res) {
+	res.status(200).json({ data: res.locals.reservation });
+}
+
 module.exports = {
 	list: asyncErrorBoundary(list),
 	create: [validateBody, validateDate, asyncErrorBoundary(create)],
 	update: [validateReservationId, validateUpdateBody, asyncErrorBoundary(update)],
-	edit: [validateReservationId, validateBody, validateDate, asyncErrorBoundary(edit)]
+	edit: [validateReservationId, validateBody, validateDate, asyncErrorBoundary(edit)],
+	read: [validateReservationId, asyncErrorBoundary(read)],
 };
