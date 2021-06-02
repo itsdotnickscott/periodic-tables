@@ -2,32 +2,34 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert"
 import { createTable } from "../utils/api";
-import { today } from "../utils/date-time";
 
-export default function NewTable() {
+export default function NewTable({ loadDashboard }) {
 	const history = useHistory();
 
 	const [error, setError] = useState(null);
 	const [formData, setFormData] = useState({
 		// initial (default) data
 		table_name: "",
-		capacity: 1,
+		capacity: "",
 	});
 
 	function handleChange({ target }) {
 		setFormData({ ...formData, [target.name]: target.name === "capacity" ? Number(target.value) : target.value });
 	}
 
-	async function handleSubmit(event) {
+	function handleSubmit(event) {
 		event.preventDefault();
 
 		const abortController = new AbortController();
 
 		if(validateFields()) {
 			createTable(formData, abortController.signal)
-				.then(() => history.push(`/dashboard?date=${today()}`))
+				.then(loadDashboard)
+				.then(() => history.push(`/dashboard`))
 				.catch(setError);
 		}
+
+		return () => abortController.abort();
 	}
 
 	function validateFields() {

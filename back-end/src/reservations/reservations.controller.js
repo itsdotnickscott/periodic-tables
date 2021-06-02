@@ -13,11 +13,15 @@ async function list(req, res) {
 	res.json({ data: response });
 }
 
-function validateBody(req, res, next) {
+function validateData(req, res, next) {
 	if(!req.body.data) {
 		return next({ status: 400, message: "Body must include a data object" });
 	}
 
+	next();
+}
+
+function validateBody(req, res, next) {
 	const requiredFields = ["first_name", "last_name", "mobile_number", "reservation_date", "reservation_time", "people"];
 
 	for(const field of requiredFields) {
@@ -36,6 +40,10 @@ function validateBody(req, res, next) {
 
 	if(req.body.data.people < 1) {
 		return next({ status: 400, message: "'people' field must be at least 1" });
+	}
+
+	if(req.body.data.status && req.body.data.status !== "booked") {
+		return next({ status: 400, message: `'status' field cannot be ${req.body.data.status}` });
 	}
 
 	next();
@@ -94,13 +102,22 @@ async function validateUpdateBody(req, res, next) {
 		return next({ status: 400, message: "body must include a status field" });
 	}
 
+	if(req.body.data.status !== "booked" && req.body.data.status !== "seated" &&
+		req.body.data.status !== "finished" && req.body.data.status !== "cancelled") {
+		return next({ status: 400, message: `'status' field cannot be ${req.body.data.status}` });
+	}
+
+	if(res.locals.reservation.status === "finished") {
+		return next({ status: 400, message: `a finished reservation cannot be updated` });
+	}
+
 	next();
 }
 
 async function update(req, res) {
-	const response = await service.update(res.locals.reservation.reservation_id, req.body.data.status);
+	await service.update(res.locals.reservation.reservation_id, req.body.data.status);
 
-	res.status(200).json({ data: response });
+	res.status(200).json({ data: { status: req.body.data.status } });
 }
 
 async function edit(req, res) {
@@ -115,8 +132,8 @@ async function read(req, res) {
 
 module.exports = {
 	list: asyncErrorBoundary(list),
-	create: [validateBody, validateDate, asyncErrorBoundary(create)],
-	update: [validateReservationId, validateUpdateBody, asyncErrorBoundary(update)],
-	edit: [validateReservationId, validateBody, validateDate, asyncErrorBoundary(edit)],
+	create: [validateData, validateBody, validateDate, asyncErrorBoundary(create)],
+	update: [validateData, validateReservationId, validateUpdateBody, asyncErrorBoundary(update)],
+	edit: [validateData, validateReservationId, validateBody, validateDate, asyncErrorBoundary(edit)],
 	read: [validateReservationId, asyncErrorBoundary(read)],
 };

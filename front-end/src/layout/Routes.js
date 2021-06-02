@@ -30,14 +30,13 @@ function Routes() {
 	useEffect(loadDashboard, [date]);
 
 	function loadDashboard() {
+		console.log("test");
     	const abortController = new AbortController();
 
     	setReservationsError(null);
 		setTablesError(null);
 
     	listReservations({ date: date }, abortController.signal)
-			.then((reservations) => reservations.sort((reservationA, reservationB) => 
-				reservationA.reservation_time < reservationB.reservation_time ? -1 : 1))
       		.then(setReservations)
       		.catch(setReservationsError);
 
@@ -81,7 +80,9 @@ function Routes() {
 			</Route>
 
 			<Route path="/tables/new">
-				<NewTable />
+				<NewTable 
+					loadDashboard={loadDashboard}
+				/>
 			</Route>
 
 			<Route path="/dashboard">
