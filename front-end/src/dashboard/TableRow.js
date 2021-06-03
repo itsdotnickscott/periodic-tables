@@ -1,5 +1,5 @@
 import React from "react";
-import { finishTable, updateReservationStatus } from "../utils/api";
+import { finishTable } from "../utils/api";
 
 export default function TableRow({ table, loadDashboard }) {
 	if(!table) return null;
@@ -7,10 +7,8 @@ export default function TableRow({ table, loadDashboard }) {
 	function handleFinish() {
 		if(window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
 			const abortController = new AbortController();
-			const reservation_id = table.reservation_id
 
 			finishTable(table.table_id, abortController.signal)
-				.then(() => updateReservationStatus(reservation_id, "finished", abortController.signal))
 				.then(loadDashboard);
 
 				return () => abortController.abort();

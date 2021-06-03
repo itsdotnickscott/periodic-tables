@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
-import { listReservations, seatTable, updateReservationStatus } from "../utils/api";
+import { listReservations, seatTable } from "../utils/api";
 
 export default function SeatReservation({ tables, loadDashboard }) {
 	const history = useHistory();
@@ -20,8 +20,6 @@ export default function SeatReservation({ tables, loadDashboard }) {
     	setReservationsError(null);
 
     	listReservations(null, abortController.signal)
-			.then((reservations) => reservations.sort((reservationA, reservationB) => 
-				reservationA.reservation_time < reservationB.reservation_time ? -1 : 1))
       		.then(setReservations)
       		.catch(setReservationsError);
 
@@ -40,7 +38,6 @@ export default function SeatReservation({ tables, loadDashboard }) {
 
 		if(validateSeat()) {
 			seatTable(reservation_id, table_id, abortController.signal)
-				.then(() => updateReservationStatus(reservation_id, "seated", abortController.signal))
 				.then(loadDashboard)
 				.then(() => history.push(`/dashboard`))
 				.catch(setApiError);

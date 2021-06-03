@@ -7,13 +7,13 @@ function list(date, mobile_number) {
 		return knex(tableName)
 			.select("*")
 			.where({ reservation_date: date })
-			.orderBy("reservation_time", "asc");;
+			.orderBy("reservation_time", "asc");
 	}
 
 	if(mobile_number) {
 		return knex(tableName)
 			.select("*")
-			.where({ mobile_number: mobile_number });
+			.where('mobile_number', 'like', `${mobile_number}%`);
 	}
 
 	return knex(tableName)
@@ -43,6 +43,7 @@ function edit(reservation_id, reservation) {
 	return knex(tableName)
 		.where({ reservation_id: reservation_id })
 		.update({ ...reservation })
+		.returning("*");
 }
 
 module.exports = {

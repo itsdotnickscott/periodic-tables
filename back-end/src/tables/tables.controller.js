@@ -42,6 +42,7 @@ function validateBody(req, res, next) {
 async function create(req, res) {
 	if(req.body.data.reservation_id) {
 		req.body.data.status = "occupied";
+		await service.updateReservation(req.body.data.reservation_id, "seated");
 	}
 	else {
     	req.body.data.status = "free";
@@ -88,6 +89,7 @@ function validateSeat(req, res, next) {
 
 async function update(req, res) {
     await service.occupy(res.locals.table.table_id, res.locals.reservation.reservation_id);
+	await service.updateReservation(res.locals.reservation.reservation_id, "seated");
 
     res.status(200).json({ data: { status: "seated" } });
 }
@@ -114,8 +116,9 @@ async function validateSeatedTable(req, res, next) {
 }
 
 async function destroy(req, res) {
+	await service.updateReservation(res.locals.table.reservation_id, "finished");
     await service.free(res.locals.table.table_id);
-
+	
     res.status(200).json({ data: { status: "finished" } });
 }
 

@@ -31,7 +31,9 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 			}
 
 			const date = new Date(foundReservation.reservation_date);
-			const dateString = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${date.getDate()}`;
+			const dateString = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + (date.getDate() + 1)).slice(-2)}`;
+
+			console.log(dateString);
 	
 			setFormData({
 				first_name: foundReservation.first_name,

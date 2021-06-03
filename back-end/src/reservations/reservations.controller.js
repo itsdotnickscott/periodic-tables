@@ -8,7 +8,9 @@ async function list(req, res) {
 	const date = req.query.date;
 	const mobile_number = req.query.mobile_number;
 
-	const response = await service.list(date, mobile_number);
+	const reservations = await service.list(date, mobile_number);
+
+	const response = reservations.filter((reservation) => reservation.status !== "finished");
 
 	res.json({ data: response });
 }
@@ -123,7 +125,7 @@ async function update(req, res) {
 async function edit(req, res) {
 	const response = await service.edit(res.locals.reservation.reservation_id, req.body.data);
 
-	res.status(200).json({ data: response });
+	res.status(200).json({ data: response[0] });
 }
 
 async function read(req, res) {
