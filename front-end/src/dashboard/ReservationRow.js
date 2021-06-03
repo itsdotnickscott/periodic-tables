@@ -30,19 +30,19 @@ export default function ReservationRow({ reservation, loadDashboard }) {
 				<>
 					<td>
 						<a href={`/reservations/${reservation.reservation_id}/edit`}>
-							<button type="button">Edit</button>
+							<button className="btn btn-secondary" type="button">Edit</button>
 						</a>
 					</td>
 
 					<td>
-						<button type="button" onClick={handleCancel} data-reservation-id-cancel={reservation.reservation_id}>
+						<button className="btn btn-danger" type="button" onClick={handleCancel} data-reservation-id-cancel={reservation.reservation_id}>
 							Cancel
 						</button>
 					</td>
 
 					<td>
 						<a href={`/reservations/${reservation.reservation_id}/seat`}>
-							<button type="button">Seat</button>
+							<button className="btn btn-primary" type="button">Seat</button>
 						</a>
 					</td>
 				</>
