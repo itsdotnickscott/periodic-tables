@@ -116,7 +116,5 @@ export async function seatTable(reservation_id, table_id, signal) {
 export async function finishTable(table_id, signal) {
   const url = `${API_BASE_URL}/tables/${table_id}/seat`;
 
-  const body = JSON.stringify({ data: { table_id: table_id }});
-
-  return await fetchJson(url, { headers, signal, method: "DELETE", body }, []);
+  return await fetchJson(url, { headers, signal, method: "DELETE" }, []);
 }

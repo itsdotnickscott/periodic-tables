@@ -30,7 +30,6 @@ function Routes() {
 	useEffect(loadDashboard, [date]);
 
 	function loadDashboard() {
-		console.log("test");
     	const abortController = new AbortController();
 
     	setReservationsError(null);

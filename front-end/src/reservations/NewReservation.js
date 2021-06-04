@@ -36,7 +36,7 @@ export default function NewReservation({ loadDashboard, edit }) {
 			}
 
 			const date = new Date(foundReservation.reservation_date);
-			const dateString = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + (date.getDate() + 1)).slice(-2)}`;
+			const dateString = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + (date.getDate())).slice(-2)}`;
 	
 			setFormData({
 				first_name: foundReservation.first_name,
@@ -64,12 +64,12 @@ export default function NewReservation({ loadDashboard, edit }) {
 		const abortController = new AbortController();
 
 		const foundErrors = [];
-
+		console.log(edit);
 		if(validateFields(foundErrors) && validateDate(foundErrors)) {
 			if(edit) {
 				editReservation(reservation_id, formData, abortController.signal)
 					.then(loadDashboard)
-					.then(() => history.goBack())
+					.then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
 					.catch(setApiError);
 			}
 			else {
@@ -84,7 +84,6 @@ export default function NewReservation({ loadDashboard, edit }) {
 
 		return () => abortController.abort();
 	}
-
 
 	function validateFields(foundErrors) {
 		for(const field in formData) {
