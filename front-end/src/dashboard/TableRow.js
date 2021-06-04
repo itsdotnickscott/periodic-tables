@@ -1,11 +1,16 @@
 import React from "react";
 import { finishTable } from "../utils/api";
 
+/**
+ * This represents a row of data representing a table for a <table>.
+ */
 export default function TableRow({ table, loadDashboard }) {
 	if(!table) return null;
 
+	/**
+	 * Called when the user wants to finish a table that is currently seated.
+	 */
 	function handleFinish() {
-		console.log("handle finish called")
 		if(window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
 			const abortController = new AbortController();
 

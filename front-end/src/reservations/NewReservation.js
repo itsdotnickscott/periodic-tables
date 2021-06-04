@@ -20,6 +20,9 @@ export default function NewReservation({ loadDashboard, edit }) {
 		people: "",
 	});
 
+	/**
+	 * Make an API call to get all reservations if we are editing, filling in the form.
+	 */
 	useEffect(() => {
 		if(edit) {
 			if(!reservation_id) return null;
@@ -55,10 +58,16 @@ export default function NewReservation({ loadDashboard, edit }) {
 		}
 	}, [edit, reservation_id]);
 
+	/**
+	 * Whenever a user makes a change to the form, update the state.
+	 */
 	function handleChange({ target }) {
 		setFormData({ ...formData, [target.name]: target.name === "people" ? Number(target.value) : target.value });
 	}
 
+	/**
+	 * Whenever a user submits the form, validate and make the API call.
+	 */
 	function handleSubmit(event) {
 		event.preventDefault();
 		const abortController = new AbortController();
@@ -85,6 +94,9 @@ export default function NewReservation({ loadDashboard, edit }) {
 		return () => abortController.abort();
 	}
 
+	/**
+	 * Make sure all fields exist and are filled in correctly.
+	 */
 	function validateFields(foundErrors) {
 		for(const field in formData) {
 			if(formData[field] === "") {
@@ -95,6 +107,9 @@ export default function NewReservation({ loadDashboard, edit }) {
 		return foundErrors.length === 0;
 	}
 
+	/**
+	 * Make sure the date and time of the reservation works with the restaurant's schedule.
+	 */
 	function validateDate(foundErrors) {
 		const reserveDate = new Date(`${formData.reservation_date}T${formData.reservation_time}:00.000`);
 		const todaysDate = new Date();

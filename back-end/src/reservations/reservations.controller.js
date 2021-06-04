@@ -2,7 +2,7 @@ const service = require("./reservations.service");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
 /**
- * List handler for reservation resources
+ * List handler for reservation resources.
  */
 async function list(req, res) {
 	const date = req.query.date;
@@ -15,7 +15,10 @@ async function list(req, res) {
 	res.json({ data: response });
 }
 
-function validateData(req, res, next) {
+/**
+ * Makes sure data object exists.
+ */
+async function validateData(req, res, next) {
 	if(!req.body.data) {
 		return next({ status: 400, message: "Body must include a data object" });
 	}
@@ -23,7 +26,10 @@ function validateData(req, res, next) {
 	next();
 }
 
-function validateBody(req, res, next) {
+/**
+ * Validates the body object to make sure all required information is correct.
+ */
+async function validateBody(req, res, next) {
 	const requiredFields = ["first_name", "last_name", "mobile_number", "reservation_date", "reservation_time", "people"];
 
 	for(const field of requiredFields) {
@@ -51,7 +57,10 @@ function validateBody(req, res, next) {
 	next();
 }
 
-function validateDate(req, res, next) {
+/**
+ * Validates the reservation date and time to ensure it fits with the restauraunt's schedule.
+ */
+async function validateDate(req, res, next) {
 	const reserveDate = new Date(`${req.body.data.reservation_date}T${req.body.data.reservation_time}:00.000`);
 	const todaysDate = new Date();
 
@@ -78,6 +87,9 @@ function validateDate(req, res, next) {
 	next();
 }
 
+/**
+ * Create a reservation.
+ */
 async function create(req, res) {
 	req.body.data.status = "booked";
 
@@ -86,6 +98,9 @@ async function create(req, res) {
 	res.status(201).json({ data: response[0] });
 }
 
+/**
+ * Validates, finds, and stores a reservation based off of its ID.
+ */
 async function validateReservationId(req, res, next) {
     const { reservation_id } = req.params;
     const reservation = await service.read(Number(reservation_id));
@@ -99,6 +114,10 @@ async function validateReservationId(req, res, next) {
     next();
 }
 
+/**
+ * Validates the body object to make sure all required information is correct for updating
+ * a resevation's status.
+ */
 async function validateUpdateBody(req, res, next) {
 	if(!req.body.data.status) {
 		return next({ status: 400, message: "body must include a status field" });
@@ -116,26 +135,35 @@ async function validateUpdateBody(req, res, next) {
 	next();
 }
 
+/**
+ * Update a reservation's status.
+ */
 async function update(req, res) {
 	await service.update(res.locals.reservation.reservation_id, req.body.data.status);
 
 	res.status(200).json({ data: { status: req.body.data.status } });
 }
 
+/**
+ * Edit the data of a reservation.
+ */
 async function edit(req, res) {
 	const response = await service.edit(res.locals.reservation.reservation_id, req.body.data);
 
 	res.status(200).json({ data: response[0] });
 }
 
+/**
+ * Respond with a particular reservation.
+ */
 async function read(req, res) {
 	res.status(200).json({ data: res.locals.reservation });
 }
 
 module.exports = {
 	list: asyncErrorBoundary(list),
-	create: [validateData, validateBody, validateDate, asyncErrorBoundary(create)],
-	update: [validateData, validateReservationId, validateUpdateBody, asyncErrorBoundary(update)],
-	edit: [validateData, validateReservationId, validateBody, validateDate, asyncErrorBoundary(edit)],
-	read: [validateReservationId, asyncErrorBoundary(read)],
+	create: [asyncErrorBoundary(validateData), asyncErrorBoundary(validateBody), asyncErrorBoundary(validateDate), asyncErrorBoundary(create)],
+	update: [asyncErrorBoundary(validateData), asyncErrorBoundary(validateReservationId), asyncErrorBoundary(validateUpdateBody), asyncErrorBoundary(update)],
+	edit: [asyncErrorBoundary(validateData), asyncErrorBoundary(validateReservationId), asyncErrorBoundary(validateBody), asyncErrorBoundary(validateDate), asyncErrorBoundary(edit)],
+	read: [asyncErrorBoundary(validateReservationId), asyncErrorBoundary(read)],
 };

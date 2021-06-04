@@ -67,6 +67,9 @@ export async function listReservations(params, signal) {
   return await fetchJson(url, { headers, signal, method: "GET" }, []);
 }
 
+/**
+ * Creates a new reservation.
+ */
 export async function createReservation(reservation, signal) {
   const url = `${API_BASE_URL}/reservations`;
 
@@ -75,6 +78,9 @@ export async function createReservation(reservation, signal) {
   return await fetchJson(url, { headers, signal, method: "POST", body }, []);
 }
 
+/**
+ * Edits an existing reservation.
+ */
 export async function editReservation(reservation_id, reservation, signal) {
   const url = `${API_BASE_URL}/reservations/${reservation_id}`;
 
@@ -83,6 +89,9 @@ export async function editReservation(reservation_id, reservation, signal) {
   return await fetchJson(url, { headers, signal, method: "PUT", body }, []);
 }
 
+/**
+ * Updates a reservation's status.
+ */
 export async function updateReservationStatus(reservation_id, status, signal) {
   const url = `${API_BASE_URL}/reservations/${reservation_id}/status`;
 
@@ -91,12 +100,18 @@ export async function updateReservationStatus(reservation_id, status, signal) {
   return await fetchJson(url, { headers, signal, method: "PUT", body }, []);
 }
 
+/**
+ * Lists all tables in the database.
+ */
 export async function listTables(signal) {
   const url = `${API_BASE_URL}/tables`;
 
   return await fetchJson(url, { headers, signal, method: "GET" }, []);
 }
 
+/**
+ * Creates a new table.
+ */
 export async function createTable(table, signal) {
   const url = `${API_BASE_URL}/tables`;
 
@@ -105,6 +120,9 @@ export async function createTable(table, signal) {
   return await fetchJson(url, { headers, signal, method: "POST", body }, []);
 }
 
+/**
+ * Seats a reservation at a table.
+ */
 export async function seatTable(reservation_id, table_id, signal) {
   const url = `${API_BASE_URL}/tables/${table_id}/seat`;
 
@@ -113,6 +131,9 @@ export async function seatTable(reservation_id, table_id, signal) {
   return await fetchJson(url, { headers, signal, method: "PUT", body }, []);
 }
 
+/**
+ * Finishes a table.
+ */
 export async function finishTable(table_id, signal) {
   const url = `${API_BASE_URL}/tables/${table_id}/seat`;
 

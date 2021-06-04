@@ -2,9 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { updateReservationStatus } from "../utils/api";
 
+/**
+ * This represents a row of data representing a reservation for a <table>.
+ */
 export default function ReservationRow({ reservation, loadDashboard }) {
 	if(!reservation || reservation.status === "finished") return null;
 
+	/**
+	 * This function is called if the user wants to cancel a reservation.
+	 */
 	function handleCancel() {
 		if(window.confirm("Do you want to cancel this reservation? This cannot be undone.")) {
 			const abortController = new AbortController();

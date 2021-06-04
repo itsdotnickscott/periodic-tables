@@ -3,15 +3,24 @@ import ErrorAlert from "../layout/ErrorAlert";
 import { listReservations } from "../utils/api";
 import ReservationRow from "../dashboard/ReservationRow";
 
+/**
+ * A page where a user can search a reservation by mobile number.
+ */
 export default function Search() {
 	const [mobileNumber, setMobileNumber] = useState("");
 	const [reservations, setReservations] = useState([]);
 	const [error, setError] = useState(null);
 
+	/**
+	 * Whenever a user makes a change to the form, update the state.
+	 */
 	function handleChange({ target }) {
 		setMobileNumber(target.value);
 	}
 
+	/**
+	 * Whenever a user submits the form, validate and make the API call.
+	 */
 	function handleSubmit(event) {
 		event.preventDefault();
 

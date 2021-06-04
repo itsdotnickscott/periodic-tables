@@ -3,6 +3,9 @@ import { useHistory } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert"
 import { createTable } from "../utils/api";
 
+/**
+ * A page that allows the user to create a new table.
+ */
 export default function NewTable({ loadDashboard }) {
 	const history = useHistory();
 
@@ -13,10 +16,16 @@ export default function NewTable({ loadDashboard }) {
 		capacity: "",
 	});
 
+	/**
+	 * Whenever a user makes a change to the form, update the state.
+	 */
 	function handleChange({ target }) {
 		setFormData({ ...formData, [target.name]: target.name === "capacity" ? Number(target.value) : target.value });
 	}
 
+	/**
+	 * Whenever a user submits the form, validate and make the API call.
+	 */
 	function handleSubmit(event) {
 		event.preventDefault();
 
@@ -32,6 +41,9 @@ export default function NewTable({ loadDashboard }) {
 		return () => abortController.abort();
 	}
 
+	/**
+	 * Makes sure all fields are filled and are filled correctly.
+	 */
 	function validateFields() {
 		let foundError = null;
 

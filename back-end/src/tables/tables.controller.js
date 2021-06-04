@@ -1,13 +1,19 @@
 const service = require("./tables.service");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
+/**
+ * List handler for table resources.
+ */
 async function list(req, res) {
     const response = await service.list();
 
     res.json({ data: response });
 }
 
-function validateData(req, res, next) {
+/**
+ * Makes sure data object exists.
+ */
+async function validateData(req, res, next) {
 	if(!req.body.data) {
 		return next({ status: 400, message: "Body must include a data object" });
 	}
@@ -15,7 +21,10 @@ function validateData(req, res, next) {
 	next();
 }
 
-function validateBody(req, res, next) {
+/**
+ * Validates the body object to make sure all required information is correct.
+ */
+async function validateBody(req, res, next) {
     if(!req.body.data.table_name || req.body.data.table_name === "") {
         return next({ status: 400, message: "'table_name' field cannot be empty" });
     }
@@ -39,6 +48,9 @@ function validateBody(req, res, next) {
     next();
 }
 
+/**
+ * Create a table.
+ */
 async function create(req, res) {
 	if(req.body.data.reservation_id) {
 		req.body.data.status = "occupied";
@@ -53,6 +65,9 @@ async function create(req, res) {
     res.status(201).json({ data: response[0] });
 }
 
+/**
+ * Validates, finds, and stores a reservation based off of its ID.
+ */
 async function validateReservationId(req, res, next) {
     const { reservation_id } = req.body.data;
 
@@ -71,7 +86,10 @@ async function validateReservationId(req, res, next) {
     next();
 }
 
-function validateSeat(req, res, next) {
+/**
+ * Validates a seat request to make sure it is allowed.
+ */
+async function validateSeat(req, res, next) {
     if(res.locals.table.status === "occupied") {
         return next({ status: 400, message: "the table you selected is currently occupied" });
     }
@@ -87,6 +105,9 @@ function validateSeat(req, res, next) {
     next();
 }
 
+/**
+ * Seat a table.
+ */
 async function update(req, res) {
     await service.occupy(res.locals.table.table_id, res.locals.reservation.reservation_id);
 	await service.updateReservation(res.locals.reservation.reservation_id, "seated");
@@ -94,6 +115,9 @@ async function update(req, res) {
     res.status(200).json({ data: { status: "seated" } });
 }
 
+/**
+ * Validates, finds, and stores a table based off of its ID.
+ */
 async function validateTableId(req, res, next) {
     const { table_id } = req.params;
     const table = await service.read(table_id);
@@ -107,6 +131,9 @@ async function validateTableId(req, res, next) {
     next();
 }
 
+/**
+ * Makes sure table is occupied before seating a table.
+ */
 async function validateSeatedTable(req, res, next) {
     if(res.locals.table.status !== "occupied") {
         return next({ status: 400, message: "this table is not occupied" });
@@ -115,6 +142,9 @@ async function validateSeatedTable(req, res, next) {
     next();
 }
 
+/**
+ * Finish a table.
+ */
 async function destroy(req, res) {
 	await service.updateReservation(res.locals.table.reservation_id, "finished");
     await service.free(res.locals.table.table_id);
@@ -124,7 +154,7 @@ async function destroy(req, res) {
 
 module.exports = {
 	list: asyncErrorBoundary(list),
-    create: [validateData, validateBody, asyncErrorBoundary(create)],
-    update: [validateData, validateTableId, validateReservationId, validateSeat, asyncErrorBoundary(update)],
-    destroy: [validateTableId, validateSeatedTable, asyncErrorBoundary(destroy)],
+    create: [asyncErrorBoundary(validateData), asyncErrorBoundary(validateBody), asyncErrorBoundary(create)],
+    update: [asyncErrorBoundary(validateData), asyncErrorBoundary(validateTableId), asyncErrorBoundary(validateReservationId), asyncErrorBoundary(validateSeat), asyncErrorBoundary(update)],
+    destroy: [asyncErrorBoundary(validateTableId), asyncErrorBoundary(validateSeatedTable), asyncErrorBoundary(destroy)],
 };

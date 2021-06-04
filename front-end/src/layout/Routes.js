@@ -12,10 +12,6 @@ import { today } from "../utils/date-time";
 
 /**
  * Defines all the routes for the application.
- *
- * You will need to make changes to this file.
- *
- * @returns {JSX.Element}
  */
 function Routes() {
 	const [reservations, setReservations] = useState([]);
@@ -29,6 +25,9 @@ function Routes() {
 
 	useEffect(loadDashboard, [date]);
 
+	/**
+	 * Grabs all current reservations and tables from an API call.
+	 */
 	function loadDashboard() {
     	const abortController = new AbortController();
 

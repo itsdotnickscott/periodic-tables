@@ -7,9 +7,6 @@ import TableRow from "./TableRow";
 
 /**
  * Defines the dashboard page.
- * @param date
- *  the date for which the user wants to view reservations.
- * @returns {JSX.Element}
  */
 function Dashboard({ date, reservations, reservationsError, tables, tablesError, loadDashboard }) {
 	const history = useHistory();
@@ -24,6 +21,9 @@ function Dashboard({ date, reservations, reservationsError, tables, tablesError,
 			<TableRow key={table.table_id} table={table} loadDashboard={loadDashboard} />);
 	};
 
+	/**
+	 * Allows the user to go forward/backward days on the calendar.
+	 */
 	function handleClick({ target }) {
 		let newDate;
 		let useDate;
