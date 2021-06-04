@@ -68,7 +68,6 @@ function Routes() {
 				<NewReservation 
 					loadDashboard={loadDashboard}
 					edit={true}
-					reservations={reservations}
 				/>
 			</Route>
 

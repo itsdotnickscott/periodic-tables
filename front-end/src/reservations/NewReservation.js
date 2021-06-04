@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
-import { createReservation, editReservation } from "../utils/api";
+import { createReservation, editReservation, listReservations } from "../utils/api";
 
-export default function NewReservation({ loadDashboard, edit, reservations }) {
+export default function NewReservation({ loadDashboard, edit }) {
 	const history = useHistory();
 	const { reservation_id } = useParams();
 
+	const [reservationsError, setReservationsError] = useState(null);
 	const [errors, setErrors] = useState([]);
 	const [apiError, setApiError] = useState(null);
 	const [formData, setFormData] = useState({
@@ -21,19 +22,21 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 
 	useEffect(() => {
 		if(edit) {
-			if(!reservations || !reservation_id) return null;
-	
-			const foundReservation = reservations.find((reservation) => 
-				reservation.reservation_id === Number(reservation_id));
-	
+			if(!reservation_id) return null;
+
+			loadReservations()
+				.then((response) => response.find((reservation) => 
+					reservation.reservation_id === Number(reservation_id)))
+				.then(fillFields);
+		}
+
+		function fillFields(foundReservation) {
 			if(!foundReservation || foundReservation.status !== "booked") {
 				return <p>Only booked reservations can be edited.</p>;
 			}
 
 			const date = new Date(foundReservation.reservation_date);
 			const dateString = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + (date.getDate() + 1)).slice(-2)}`;
-
-			console.log(dateString);
 	
 			setFormData({
 				first_name: foundReservation.first_name,
@@ -44,7 +47,13 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 				people: foundReservation.people,
 			});
 		}
-	}, [edit, reservation_id, reservations]);
+
+		async function loadReservations() {
+			const abortController = new AbortController();
+			return await listReservations(null, abortController.signal)
+				.catch(setReservationsError);
+		}
+	}, [edit, reservation_id]);
 
 	function handleChange({ target }) {
 		setFormData({ ...formData, [target.name]: target.name === "people" ? Number(target.value) : target.value });
@@ -120,6 +129,7 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 		<form>
 			{errorsJSX()}
 			<ErrorAlert error={apiError} />
+			<ErrorAlert error={reservationsError} />
 
 			<label className="form-label" htmlFor="first_name">First Name:&nbsp;</label>
 			<input 
