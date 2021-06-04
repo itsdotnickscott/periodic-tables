@@ -5,13 +5,14 @@ export default function TableRow({ table, loadDashboard }) {
 	if(!table) return null;
 
 	function handleFinish() {
+		console.log("handle finish called")
 		if(window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
 			const abortController = new AbortController();
 
 			finishTable(table.table_id, abortController.signal)
 				.then(loadDashboard);
 
-				return () => abortController.abort();
+			return () => abortController.abort();
 		}
 	}
 
@@ -24,8 +25,8 @@ export default function TableRow({ table, loadDashboard }) {
 			<td>{table.reservation_id ? table.reservation_id : "--"}</td>
 
 			{table.status === "occupied" &&
-				<td data-table-id-finish={table.table_id}>
-					<button onClick={handleFinish} type="button">Finish</button>
+				<td>
+					<button data-table-id-finish={table.table_id} onClick={handleFinish} type="button">Finish</button>
 				</td>
 			}
 		</tr>

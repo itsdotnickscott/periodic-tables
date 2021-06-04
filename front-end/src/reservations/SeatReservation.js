@@ -83,13 +83,14 @@ export default function SeatReservation({ tables, loadDashboard }) {
 	};
 
 	return (
-		<form>
+		<form className="form-select">
 			{errorsJSX()}
 			<ErrorAlert error={apiError} />
 			<ErrorAlert error={reservationsError} />
 
-			<label htmlFor="table_id">Choose table:</label>
+			<label className="form-label" htmlFor="table_id">Choose table:</label>
 			<select 
+				className="form-control"
 				name="table_id" 
 				id="table_id"
 				value={table_id}
@@ -99,8 +100,8 @@ export default function SeatReservation({ tables, loadDashboard }) {
 				{tableOptionsJSX()}
 			</select>
 
-			<button type="submit" onClick={handleSubmit}>Submit</button>
-			<button type="button" onClick={history.goBack}>Cancel</button>
+			<button className="btn btn-primary m-1" type="submit" onClick={handleSubmit}>Submit</button>
+			<button className="btn btn-danger m-1" type="button" onClick={history.goBack}>Cancel</button>
 		</form>
 	);
 }

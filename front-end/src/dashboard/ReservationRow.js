@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { updateReservationStatus } from "../utils/api";
 
 export default function ReservationRow({ reservation, loadDashboard }) {
@@ -29,20 +30,20 @@ export default function ReservationRow({ reservation, loadDashboard }) {
 			{reservation.status === "booked" &&
 				<>
 					<td>
-						<a href={`/reservations/${reservation.reservation_id}/edit`}>
-							<button type="button">Edit</button>
-						</a>
+						<Link to={`/reservations/${reservation.reservation_id}/edit`}>
+							<button className="btn btn-secondary" type="button">Edit</button>
+						</Link>
 					</td>
 
 					<td>
-						<button type="button" onClick={handleCancel} data-reservation-id-cancel={reservation.reservation_id}>
+						<button className="btn btn-danger" type="button" onClick={handleCancel} data-reservation-id-cancel={reservation.reservation_id}>
 							Cancel
 						</button>
 					</td>
 
 					<td>
 						<a href={`/reservations/${reservation.reservation_id}/seat`}>
-							<button type="button">Seat</button>
+							<button className="btn btn-primary" type="button">Seat</button>
 						</a>
 					</td>
 				</>

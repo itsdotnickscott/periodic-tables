@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
-import { createReservation, editReservation } from "../utils/api";
+import { createReservation, editReservation, listReservations } from "../utils/api";
 
-export default function NewReservation({ loadDashboard, edit, reservations }) {
+export default function NewReservation({ loadDashboard, edit }) {
 	const history = useHistory();
 	const { reservation_id } = useParams();
 
+	const [reservationsError, setReservationsError] = useState(null);
 	const [errors, setErrors] = useState([]);
 	const [apiError, setApiError] = useState(null);
 	const [formData, setFormData] = useState({
@@ -21,19 +22,21 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 
 	useEffect(() => {
 		if(edit) {
-			if(!reservations || !reservation_id) return null;
-	
-			const foundReservation = reservations.find((reservation) => 
-				reservation.reservation_id === Number(reservation_id));
-	
+			if(!reservation_id) return null;
+
+			loadReservations()
+				.then((response) => response.find((reservation) => 
+					reservation.reservation_id === Number(reservation_id)))
+				.then(fillFields);
+		}
+
+		function fillFields(foundReservation) {
 			if(!foundReservation || foundReservation.status !== "booked") {
 				return <p>Only booked reservations can be edited.</p>;
 			}
 
 			const date = new Date(foundReservation.reservation_date);
-			const dateString = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + (date.getDate() + 1)).slice(-2)}`;
-
-			console.log(dateString);
+			const dateString = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + (date.getDate())).slice(-2)}`;
 	
 			setFormData({
 				first_name: foundReservation.first_name,
@@ -44,7 +47,13 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 				people: foundReservation.people,
 			});
 		}
-	}, [edit, reservation_id, reservations]);
+
+		async function loadReservations() {
+			const abortController = new AbortController();
+			return await listReservations(null, abortController.signal)
+				.catch(setReservationsError);
+		}
+	}, [edit, reservation_id]);
 
 	function handleChange({ target }) {
 		setFormData({ ...formData, [target.name]: target.name === "people" ? Number(target.value) : target.value });
@@ -55,12 +64,12 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 		const abortController = new AbortController();
 
 		const foundErrors = [];
-
+		console.log(edit);
 		if(validateFields(foundErrors) && validateDate(foundErrors)) {
 			if(edit) {
 				editReservation(reservation_id, formData, abortController.signal)
 					.then(loadDashboard)
-					.then(() => history.goBack())
+					.then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
 					.catch(setApiError);
 			}
 			else {
@@ -75,7 +84,6 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 
 		return () => abortController.abort();
 	}
-
 
 	function validateFields(foundErrors) {
 		for(const field in formData) {
@@ -120,9 +128,11 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 		<form>
 			{errorsJSX()}
 			<ErrorAlert error={apiError} />
+			<ErrorAlert error={reservationsError} />
 
-			<label htmlFor="first_name">First Name:&nbsp;</label>
+			<label className="form-label" htmlFor="first_name">First Name:&nbsp;</label>
 			<input 
+				className="form-control"
 				name="first_name"
 				id="first_name"
 				type="text"
@@ -131,8 +141,9 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 				required
 			/>
 
-			<label htmlFor="last_name">Last Name:&nbsp;</label>
+			<label className="form-label" htmlFor="last_name">Last Name:&nbsp;</label>
 			<input 
+				className="form-control"
 				name="last_name"
 				id="last_name"
 				type="text"
@@ -141,8 +152,9 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 				required
 			/>
 
-			<label htmlFor="mobile_number">Mobile Number:&nbsp;</label>
+			<label className="form-label" htmlFor="mobile_number">Mobile Number:&nbsp;</label>
 			<input 
+				className="form-control"
 				name="mobile_number"
 				id="mobile_number"
 				type="text"
@@ -151,8 +163,9 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 				required
 			/>
 
-			<label htmlFor="reservation_date">Reservation Date:&nbsp;</label>
+			<label className="form-label" htmlFor="reservation_date">Reservation Date:&nbsp;</label>
 			<input 
+				className="form-control"
 				name="reservation_date" 
 				id="reservation_date"
 				type="date"
@@ -161,8 +174,9 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 				required
 			/>
 
-			<label htmlFor="reservation_time">Reservation Time:&nbsp;</label>
+			<label className="form-label" htmlFor="reservation_time">Reservation Time:&nbsp;</label>
 			<input 
+				className="form-control"
 				name="reservation_time" 
 				id="reservation_time"
 				type="time"
@@ -171,8 +185,9 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 				required
 			/>
 
-			<label htmlFor="people">Party Size:&nbsp;</label>
+			<label className="form-label" htmlFor="people">Party Size:&nbsp;</label>
 			<input 
+				className="form-control"
 				name="people"
 				id="people"
 				type="number"
@@ -182,8 +197,8 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
 				required
 			/>
 
-			<button type="submit" onClick={handleSubmit}>Submit</button>
-			<button type="button" onClick={history.goBack}>Cancel</button>
+			<button className="btn btn-primary m-1" type="submit" onClick={handleSubmit}>Submit</button>
+			<button className="btn btn-danger m-1" type="button" onClick={history.goBack}>Cancel</button>
 		</form>
 	);
 }

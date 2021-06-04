@@ -53,10 +53,14 @@ function Dashboard({ date, reservations, reservationsError, tables, tablesError,
 		<h1>Dashboard</h1>
 
 		<h4 className="mb-0">Reservations for {date}</h4>
+
+				<button className="btn btn-secondary m-1" type="button" name="previous" onClick={handleClick}>Previous</button>
+				<button className="btn btn-primary m-1" type="button" name="today" onClick={handleClick}>Today</button>
+				<button className="btn btn-secondary m-1" type="button" name="next" onClick={handleClick}>Next</button>
 				
 				<ErrorAlert error={reservationsError} />
 
-				<table className="table">
+				<table className="table table-hover m-1">
 					<thead className="thead-light">
 						<tr>
 							<th scope="col">ID</th>
@@ -77,10 +81,6 @@ function Dashboard({ date, reservations, reservationsError, tables, tablesError,
 						{reservationsJSX()}
 					</tbody>
 				</table>
-
-				<button type="button" name="previous" onClick={handleClick}>Previous</button>
-				<button type="button" name="today" onClick={handleClick}>Today</button>
-				<button type="button" name="next" onClick={handleClick}>Next</button>
 		
 				<br />
 				<br />
@@ -89,7 +89,7 @@ function Dashboard({ date, reservations, reservationsError, tables, tablesError,
 
 				<ErrorAlert error={tablesError} />
 
-				<table className="table">
+				<table className="table table-hover m-1">
 					<thead className="thead-light">
 						<tr>
 							<th scope="col">Table ID</th>
